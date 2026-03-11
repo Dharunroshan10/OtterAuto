@@ -1,5 +1,5 @@
-import React from 'react';
-import { ChevronRight, Zap } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronRight, Zap, Menu, X } from 'lucide-react';
 
 const OtterLogo = ({ size = 24, className = "" }) => (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -9,9 +9,12 @@ const OtterLogo = ({ size = 24, className = "" }) => (
 );
 
 export default function PublicLayout({ children, onBack }) {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
     const handleNavigation = (path) => {
         window.location.hash = path;
         window.scrollTo(0, 0);
+        setIsMobileMenuOpen(false);
     };
 
     return (
@@ -37,28 +40,47 @@ export default function PublicLayout({ children, onBack }) {
             </div>
 
             {/* Navbar Card */}
-            <nav className="bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-sm border border-slate-200/50 w-full max-w-6xl px-6 h-20 flex items-center justify-between sticky top-6 z-50 animate-fade-up">
-                <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleNavigation('#/')}>
-                    <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
-                        <OtterLogo size={24} className="text-orange-500" />
+            <nav className="bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-sm border border-slate-200/50 w-full max-w-6xl px-4 md:px-6 py-4 md:py-0 md:h-20 sticky top-6 z-50 animate-fade-up">
+                <div className="flex items-center justify-between w-full h-12 md:h-full">
+                    <div className="flex items-center gap-2 md:gap-3 cursor-pointer" onClick={() => handleNavigation('#/')}>
+                        <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
+                            <OtterLogo size={24} className="text-orange-500" />
+                        </div>
+                        <span className="text-lg md:text-xl font-extrabold tracking-tight">Otter Vault</span>
                     </div>
-                    <span className="text-xl font-extrabold tracking-tight">Otter Vault</span>
+
+                    <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+                        <button onClick={() => handleNavigation('#/about')} className="hover:text-orange-500 transition-colors">About</button>
+                        <button onClick={() => handleNavigation('#/features')} className="hover:text-orange-500 transition-colors">Features</button>
+                        <button onClick={() => handleNavigation('#/blog')} className="hover:text-orange-500 transition-colors">Blog</button>
+                        <button onClick={() => handleNavigation('#/pricing')} className="hover:text-orange-500 transition-colors">Pricing</button>
+                        <button onClick={() => handleNavigation('#/contact')} className="hover:text-orange-500 transition-colors">Contact</button>
+                    </div>
+
+                    <div className="flex items-center gap-3 md:gap-4">
+                        <button onClick={() => handleNavigation('#/')} className="hidden md:block text-slate-600 font-semibold text-sm hover:text-slate-900 transition-colors">Log in</button>
+                        <button onClick={() => handleNavigation('#/pricing')} className="relative btn-primary flex items-center gap-1.5 md:gap-2 px-4 py-2 md:px-6 md:py-2.5 rounded-full text-white font-bold text-xs md:text-sm shadow-md bg-gradient-to-r from-orange-500 via-red-500 to-rose-500 overflow-hidden group">
+                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+                            <span className="relative z-10 flex items-center gap-1.5 md:gap-2">Upgrade <Zap size={14} className="fill-white/30 hidden sm:block" /></span>
+                        </button>
+                        {/* Mobile Menu Toggle */}
+                        <button className="md:hidden p-2 text-slate-600 hover:text-orange-500" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                        </button>
+                    </div>
                 </div>
-                <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
-                    <button onClick={() => handleNavigation('#/about')} className="hover:text-orange-500 transition-colors">About</button>
-                    <button onClick={() => handleNavigation('#/features')} className="hover:text-orange-500 transition-colors">Features</button>
-                    <button onClick={() => handleNavigation('#/blog')} className="hover:text-orange-500 transition-colors">Blog</button>
-                    <button onClick={() => handleNavigation('#/blog')} className="hover:text-orange-500 transition-colors">Blog</button>
-                    <button onClick={() => handleNavigation('#/pricing')} className="hover:text-orange-500 transition-colors">Pricing</button>
-                    <button onClick={() => handleNavigation('#/contact')} className="hover:text-orange-500 transition-colors">Contact</button>
-                </div>
-                <div className="flex items-center gap-4">
-                    <button onClick={() => handleNavigation('#/')} className="hidden md:block text-slate-600 font-semibold text-sm hover:text-slate-900 transition-colors">Log in</button>
-                    <button onClick={() => handleNavigation('#/pricing')} className="relative btn-primary flex items-center gap-2 px-6 py-2.5 rounded-full text-white font-bold text-sm shadow-md bg-gradient-to-r from-orange-500 via-red-500 to-rose-500 overflow-hidden group">
-                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
-                        <span className="relative z-10 flex items-center gap-2">Upgrade to Pro <Zap size={16} className="fill-white/30" /></span>
-                    </button>
-                </div>
+
+                {/* Mobile Menu Dropdown */}
+                {isMobileMenuOpen && (
+                    <div className="md:hidden pt-4 pb-2 border-t border-slate-100 mt-4 flex flex-col gap-4 text-sm font-semibold text-slate-600 animate-fade-up">
+                        <button onClick={() => handleNavigation('#/about')} className="text-left py-2 hover:text-orange-500 transition-colors">About</button>
+                        <button onClick={() => handleNavigation('#/features')} className="text-left py-2 hover:text-orange-500 transition-colors">Features</button>
+                        <button onClick={() => handleNavigation('#/blog')} className="text-left py-2 hover:text-orange-500 transition-colors">Blog</button>
+                        <button onClick={() => handleNavigation('#/pricing')} className="text-left py-2 hover:text-orange-500 transition-colors">Pricing</button>
+                        <button onClick={() => handleNavigation('#/contact')} className="text-left py-2 hover:text-orange-500 transition-colors">Contact</button>
+                        <button onClick={() => handleNavigation('#/')} className="text-left py-2 text-orange-600 hover:text-orange-700 transition-colors mt-2 border-t border-slate-100">Log in</button>
+                    </div>
+                )}
             </nav>
 
             {/* Main Content Area */}

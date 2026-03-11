@@ -112,6 +112,12 @@ export default function App() {
     const [downloadProgress, setDownloadProgress] = useState('');
     const [showPaywallModal, setShowPaywallModal] = useState(false);
     const [paywallMessage, setPaywallMessage] = useState('');
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleTabClick = (tab) => {
+        setActiveTab(tab);
+        setIsSidebarOpen(false);
+    };
 
     useEffect(() => {
         // Check for existing session on load
@@ -650,20 +656,31 @@ Rules: category must be ONE of the exact values listed. amount_detected is a num
             <input type="file" ref={fileInputRef} accept="image/*" onChange={handleFileUpload} className="hidden" multiple />
             <input type="file" ref={folderInputRef} accept="image/*" onChange={handleFileUpload} className="hidden" webkitdirectory="true" directory="true" multiple />
 
+            {/* Mobile Sidebar Overlay */}
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 md:hidden transition-opacity"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="w-64 bg-[#F8FAFC] border-r border-slate-200/80 flex flex-col shrink-0 hidden md:flex">
-                <div className="p-6 pb-2">
+            <aside className={`fixed md:static inset-y-0 left-0 z-50 w-72 md:w-64 bg-[#F8FAFC] border-r border-slate-200/80 flex flex-col shrink-0 transition-transform duration-300 ease-in-out md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="p-6 pb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2.5 font-extrabold text-xl tracking-tight text-slate-900">
                         <OtterLogo className="text-red-600" size={24} /> Otter
                     </div>
+                    <button className="md:hidden p-2 -mr-2 text-slate-400 hover:text-slate-900" onClick={() => setIsSidebarOpen(false)}>
+                        <X size={20} />
+                    </button>
                 </div>
                 <div className="flex-1 overflow-y-auto px-4 py-4 hide-scrollbar space-y-6">
                     {/* Main Navigation */}
                     <div className="space-y-1">
-                        <button onClick={() => setActiveTab('Home')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition text-sm ${activeTab === 'Home' ? 'bg-red-50 text-red-700' : 'text-slate-600 hover:bg-slate-200/50'}`}>
+                        <button onClick={() => handleTabClick('Home')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition text-sm ${activeTab === 'Home' ? 'bg-red-50 text-red-700' : 'text-slate-600 hover:bg-slate-200/50'}`}>
                             <Home size={18} /> Home
                         </button>
-                        <button onClick={() => setActiveTab('All')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition text-sm ${activeTab === 'All' ? 'bg-red-50 text-red-700' : 'text-slate-600 hover:bg-slate-200/50'}`}>
+                        <button onClick={() => handleTabClick('All')} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold transition text-sm ${activeTab === 'All' ? 'bg-red-50 text-red-700' : 'text-slate-600 hover:bg-slate-200/50'}`}>
                             <div className="flex items-center gap-3"><LayoutGrid size={18} /> Dashboard</div>
                             <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${activeTab === 'All' ? 'bg-red-100 text-red-700' : 'bg-slate-200 text-slate-500'}`}>{screenshots.length}</span>
                         </button>
@@ -682,7 +699,7 @@ Rules: category must be ONE of the exact values listed. amount_detected is a num
                                     const count = screenshots.filter(s => s.category === category).length;
                                     const isActive = activeTab === category;
                                     return (
-                                        <button key={category} onClick={() => setActiveTab(category)} className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium transition text-sm ${isActive ? 'bg-red-50 text-red-700 font-semibold' : 'text-slate-600 hover:bg-slate-200/50'}`}>
+                                        <button key={category} onClick={() => handleTabClick(category)} className={`w-full flex items-center justify-between px-3 py-2 rounded-xl font-medium transition text-sm ${isActive ? 'bg-red-50 text-red-700 font-semibold' : 'text-slate-600 hover:bg-slate-200/50'}`}>
                                             <div className="flex items-center gap-3">
                                                 <span className={isActive ? "text-red-600" : "text-slate-400"}>{getCategoryIcon(category, 18)}</span> {category}
                                             </div>
@@ -696,42 +713,42 @@ Rules: category must be ONE of the exact values listed. amount_detected is a num
                     {/* Import Tools */}
                     <div>
                         <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 px-3">Import Tools</div>
-                        <button onClick={(e) => requireAuth(e, () => folderInputRef.current?.click())} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition text-sm text-slate-600 hover:bg-slate-200/50">
+                        <button onClick={(e) => requireAuth(e, () => { folderInputRef.current?.click(); setIsSidebarOpen(false); })} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition text-sm text-slate-600 hover:bg-slate-200/50">
                             <FolderPlus size={18} className="text-slate-400" /> Folder Import
                         </button>
-                        <button onClick={(e) => requireAuth(e, () => setShowLinkModal(true))} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition text-sm text-slate-600 hover:bg-slate-200/50 mt-0.5">
+                        <button onClick={(e) => requireAuth(e, () => { setShowLinkModal(true); setIsSidebarOpen(false); })} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition text-sm text-slate-600 hover:bg-slate-200/50 mt-0.5">
                             <LinkIcon size={18} className="text-slate-400" /> Web Link
                         </button>
                     </div>
                     {/* Legal & Info */}
                     <div>
                         <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 px-3">Info</div>
-                        <span onClick={() => { window.location.hash = '#/about'; }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition text-sm text-slate-600 hover:bg-slate-200/50 cursor-pointer">
+                        <span onClick={() => { window.location.hash = '#/about'; setIsSidebarOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition text-sm text-slate-600 hover:bg-slate-200/50 cursor-pointer">
                             <Globe size={18} className="text-slate-400" /> About Us
                         </span>
-                        <span onClick={() => { window.location.hash = '#/blog'; }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition text-sm text-slate-600 hover:bg-slate-200/50 mt-0.5 cursor-pointer">
+                        <span onClick={() => { window.location.hash = '#/blog'; setIsSidebarOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition text-sm text-slate-600 hover:bg-slate-200/50 mt-0.5 cursor-pointer">
                             <BookOpen size={18} className="text-slate-400" /> Blog & Guides
                         </span>
-                        <span onClick={() => { window.location.hash = '#/contact'; }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition text-sm text-slate-600 hover:bg-slate-200/50 mt-0.5 cursor-pointer">
+                        <span onClick={() => { window.location.hash = '#/contact'; setIsSidebarOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition text-sm text-slate-600 hover:bg-slate-200/50 mt-0.5 cursor-pointer">
                             <MessageSquare size={18} className="text-slate-400" /> Contact Us
                         </span>
-                        <span onClick={() => { window.location.hash = '#/terms'; }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition text-sm text-slate-600 hover:bg-slate-200/50 mt-0.5 cursor-pointer">
+                        <span onClick={() => { window.location.hash = '#/terms'; setIsSidebarOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition text-sm text-slate-600 hover:bg-slate-200/50 mt-0.5 cursor-pointer">
                             <FileText size={18} className="text-slate-400" /> Terms & Conditions
                         </span>
-                        <span onClick={() => { window.location.hash = '#/privacy'; }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition text-sm text-slate-600 hover:bg-slate-200/50 mt-0.5 cursor-pointer">
+                        <span onClick={() => { window.location.hash = '#/privacy'; setIsSidebarOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium transition text-sm text-slate-600 hover:bg-slate-200/50 mt-0.5 cursor-pointer">
                             <Shield size={18} className="text-slate-400" /> Privacy Policy
                         </span>
                     </div>
                 </div>
                 <div className="p-4 px-4 bg-gradient-to-b from-transparent to-orange-50/30 mt-auto border-t border-slate-200/80">
-                    <button onClick={() => window.location.hash = '#/pricing'} className="w-full relative py-3 rounded-xl font-bold text-center transition-all duration-300 overflow-hidden group flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 via-red-500 to-rose-500 text-white shadow-md shadow-orange-500/20 hover:shadow-lg hover:scale-[1.02] text-sm">
+                    <button onClick={() => { window.location.hash = '#/pricing'; setIsSidebarOpen(false); }} className="w-full relative py-3 rounded-xl font-bold text-center transition-all duration-300 overflow-hidden group flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 via-red-500 to-rose-500 text-white shadow-md shadow-orange-500/20 hover:shadow-lg hover:scale-[1.02] text-sm">
                         <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
                         <span className="relative z-10 flex items-center gap-2">Upgrade to Pro <Zap size={14} className="fill-white/30" /></span>
                     </button>
                 </div>
                 <div className="p-4 border-t border-slate-200/80">
                     {isAuthenticated ? (
-                        <div className="flex items-center gap-3 px-2 py-2 group cursor-pointer" onClick={handleLogout}>
+                        <div className="flex items-center gap-3 px-2 py-2 group cursor-pointer" onClick={() => { handleLogout(); setIsSidebarOpen(false); }}>
                             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-red-500 to-rose-500 text-white flex items-center justify-center font-bold text-xs shadow-sm group-hover:shadow-md transition-shadow">
                                 {user?.user_metadata?.full_name ? user.user_metadata.full_name.charAt(0).toUpperCase() : 'US'}
                             </div>
@@ -743,7 +760,7 @@ Rules: category must be ONE of the exact values listed. amount_detected is a num
                             </div>
                         </div>
                     ) : (
-                        <div className="flex items-center gap-3 px-2 py-2 group cursor-pointer" onClick={() => window.location.hash = '#/login'}>
+                        <div className="flex items-center gap-3 px-2 py-2 group cursor-pointer" onClick={() => { window.location.hash = '#/login'; setIsSidebarOpen(false); }}>
                             <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-xs shadow-sm group-hover:bg-slate-300 transition-colors">
                                 ?
                             </div>
@@ -761,37 +778,41 @@ Rules: category must be ONE of the exact values listed. amount_detected is a num
             {/* Main */}
             <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
                 {/* Header - different for Home vs Dashboard */}
-                <header className="absolute top-0 left-0 right-0 h-20 px-8 flex items-center justify-between z-10 bg-[#F8FAFC]/80 backdrop-blur-md border-b border-slate-200/50">
-                    <h1 className="text-2xl font-bold text-slate-900">
-                        {activeTab === 'Home' ? 'Welcome to Otter' : activeTab === 'All' ? 'Dashboard' : activeTab}
-                    </h1>
-                    <div className="flex items-center gap-3">
-                        <button onClick={() => window.location.hash = '#/pricing'} className="relative flex items-center gap-2 px-4 py-2 md:px-5 md:py-2.5 rounded-full text-white font-bold text-xs md:text-sm shadow-md bg-gradient-to-r from-orange-500 via-red-500 to-rose-500 overflow-hidden group hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                <header className="absolute top-0 left-0 right-0 h-20 px-4 md:px-8 flex items-center justify-between z-10 bg-[#F8FAFC]/80 backdrop-blur-md border-b border-slate-200/50">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <button className="md:hidden p-2 -ml-2 text-slate-500 hover:text-slate-900 shrink-0" onClick={() => setIsSidebarOpen(true)}>
+                            <Menu size={24} />
+                        </button>
+                        <h1 className="text-lg md:text-2xl font-bold text-slate-900 truncate flex-1">
+                            {activeTab === 'Home' ? 'Welcome to Otter' : activeTab === 'All' ? 'Dashboard' : activeTab}
+                        </h1>
+                    </div>
+                    <div className="flex items-center gap-2 md:gap-3 shrink-0 ml-2">
+                        <button onClick={() => window.location.hash = '#/pricing'} className="relative flex items-center gap-1.5 md:gap-2 px-3 py-1.5 md:px-5 md:py-2.5 rounded-full text-white font-bold text-xs md:text-sm shadow-md bg-gradient-to-r from-orange-500 via-red-500 to-rose-500 overflow-hidden group hover:shadow-lg hover:-translate-y-0.5 transition-all">
                             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
-                            <span className="relative z-10 flex items-center gap-2">Upgrade <Zap size={14} className="fill-white/30" /></span>
+                            <span className="relative z-10 flex items-center gap-1.5 md:gap-2">Upgrade <Zap size={14} className="fill-white/30 hidden sm:block" /></span>
                         </button>
                         {activeTab !== 'Home' && (
                             <>
-                                <div className="relative w-72 group">
+                                <div className="relative w-40 md:w-72 group hidden sm:block">
                                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 group-focus-within:text-red-500 transition-colors" />
-                                    <input type="text" placeholder="Search semantics..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-full outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all text-sm font-medium shadow-sm" />
+                                    <input type="text" placeholder="Search semantics..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2 md:py-2.5 bg-white border border-slate-200 rounded-full outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all text-xs md:text-sm font-medium shadow-sm" />
                                 </div>
-                                <button className="p-2.5 bg-white border border-slate-200 rounded-full text-slate-500 hover:text-slate-900 hover:border-slate-300 transition-all shadow-sm"><Bell size={18} /></button>
-                                <button onClick={handleVaultInsights} disabled={screenshots.length === 0} className="bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-full font-semibold shadow-sm hover:bg-slate-50 hover:-translate-y-0.5 transition-all flex items-center gap-2 text-sm disabled:opacity-50 disabled:hover:translate-y-0 ml-2">
-                                    <Sparkles size={16} className="text-amber-500" /> Vault Insights
+                                <button onClick={handleVaultInsights} disabled={screenshots.length === 0} className="bg-white border border-slate-200 text-slate-700 px-3 py-1.5 md:px-5 md:py-2.5 rounded-full font-semibold shadow-sm hover:bg-slate-50 hover:-translate-y-0.5 transition-all hidden lg:flex items-center gap-2 text-xs md:text-sm disabled:opacity-50 disabled:hover:translate-y-0 ml-0 md:ml-2">
+                                    <Sparkles size={16} className="text-amber-500" /> <span className="hidden xl:inline">Vault Insights</span>
                                 </button>
-                                <button onClick={() => { setPaywallMessage('Bulk downloading your entire vault structure is a Pro feature.'); setShowPaywallModal(true); }} className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-5 py-2.5 rounded-full font-semibold shadow-md shadow-emerald-500/25 hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 text-sm ml-2">
-                                    <FolderDown size={16} /> Download All
+                                <button onClick={() => { setPaywallMessage('Bulk downloading your entire vault structure is a Pro feature.'); setShowPaywallModal(true); }} className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-3 py-1.5 md:px-5 md:py-2.5 rounded-full font-semibold shadow-md shadow-emerald-500/25 hover:shadow-lg hover:-translate-y-0.5 transition-all hidden md:flex items-center gap-2 text-xs md:text-sm ml-2">
+                                    <FolderDown size={16} /> <span className="hidden xl:inline">Download All</span>
                                 </button>
                             </>
                         )}
-                        <button onClick={(e) => requireAuth(e, () => fileInputRef.current?.click())} className="bg-red-600 text-white px-5 py-2.5 rounded-full font-semibold shadow-md shadow-red-600/20 hover:bg-red-700 hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 text-sm ml-2">
-                            <Upload size={16} /> Upload
+                        <button onClick={(e) => requireAuth(e, () => fileInputRef.current?.click())} className="bg-red-600 text-white px-3 py-1.5 md:px-5 md:py-2.5 rounded-full font-semibold shadow-md shadow-red-600/20 hover:bg-red-700 hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-1.5 md:gap-2 text-xs md:text-sm ml-0 md:ml-2" aria-label="Upload">
+                            <Upload size={16} /> <span className="hidden sm:inline">Upload</span>
                         </button>
                     </div>
                 </header>
 
-                <div className="flex-1 overflow-y-auto px-8 pt-28 pb-10 hide-scrollbar">
+                <div className="flex-1 overflow-y-auto px-4 md:px-8 pt-24 md:pt-28 pb-10 hide-scrollbar">
 
                     {/* ═══ HOME VIEW ═══ */}
                     {activeTab === 'Home' && (
