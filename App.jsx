@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { Analytics } from "@vercel/analytics/react";
 
 // --- SUPABASE INITIALIZATION ---
 import { supabase } from './supabaseClient';
@@ -1465,6 +1466,7 @@ Rules: category must be ONE of the exact values listed. amount_detected is a num
                     </div>
                 </div>
             )}
+            <Analytics />
         </div>
     );
 }
