@@ -9,6 +9,10 @@
             "destination": "https://integrate.api.nvidia.com/:path*"
         },
         {
+            "source": "/(.*)\\.(txt|xml|json|png|jpg|jpeg|svg|gif|ico)",
+            "destination": "/$1.$2"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }
